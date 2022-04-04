@@ -1,7 +1,7 @@
 <?php
 require_once realpath(__DIR__ . '/env.php'); 
-error_reporting(-1);
-ini_set('display_errors', 'On');
+//error_reporting(-1);
+//ini_set('display_errors', 'On');
 header('Content-Type: application/json');
 
 $start_date = $_GET['start_date'];
@@ -27,18 +27,13 @@ $ch = curl_init();
 $requestUri = "https://api.nasa.gov/neo/rest/v1/feed?start_date=".$start_date."&end_date=".$end_date."&api_key=" . $NASA_API_KEY;
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_URL, $requestUri);
-curl_setopt($ch, CURLOPT_SSH_COMPRESSION, true);
-curl_setopt_array($ch, [
-	CURLOPT_RETURNTRANSFER => true,
-	CURLOPT_URL => $requestUri
-]);
 $result = curl_exec($ch);
 
 curl_close($ch);
 
 $data = json_decode($result);
 
-if ($data->code != 200) {
+if (isset($data->code) && $data->code != 200) {
 	echo json_encode(['error' => $data->error_message]);
 	http_response_code(400);
 	exit();
@@ -47,7 +42,6 @@ if ($data->code != 200) {
 $near_earth_objects_dates = $data->near_earth_objects;
 $near_earth_objects = [];
 
-//echo $near_earth_objects;
 foreach ($near_earth_objects_dates as $objects_in_day) {
 	foreach ($objects_in_day as $o) {
 		$close_approach_data_array = $o->close_approach_data;
